@@ -1,0 +1,46 @@
+version: '3.6'
+services:
+  leaderboard-db:
+    restart: always
+    image: mysql:8.0.30
+    volumes:
+      - backup-data:/var/lib/mysql2/data
+    env_file:
+      - ./.env
+    networks:
+      - network1
+    ports:
+      - "3306:3306"
+  leaderboard-redis:
+    restart: always
+    image: redis:7.0.4-alpine
+    volumes:
+      - redis-data:/data
+    networks:
+      - network1
+    ports:
+      - "6379:6379"
+
+  leaderboard:
+    restart: always
+    image: golang:1.19.1-alpine3.16
+    build: ./server
+    working_dir: /usr/src/app
+    depends_on:
+      - leaderboard-db
+      - leaderboard-redis
+    networks:
+      - network1
+    volumes:
+      - ./server:/usr/src/app/
+    ports:
+      - "8080:8080"
+    entrypoint: ["/usr/src/app/dev-entrypoint.sh"]
+
+networks:
+  network1:
+    driver: bridge
+
+volumes:
+  backup-data:  # db
+  redis-data:  # cache
