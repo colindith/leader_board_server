@@ -1,4 +1,4 @@
-FROM golang:1.19.1-alpine3.16
+FROM golang:1.19.1-buster
 
 WORKDIR /usr/src/app
 #RUN apt update && \

@@ -5,6 +5,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/colindith/leader_board_server/server/service"
 )
 
 func Ping(c *gin.Context) {
@@ -14,7 +16,7 @@ func Ping(c *gin.Context) {
 }
 
 func UpdateScore(c *gin.Context) {
-	json := Score{}
+	json := UpdateScoreReq{}
 	err := c.BindJSON(&json)
 	if err != nil {
 		log.Printf("[ERROR] error request payload %v", err.Error())
@@ -25,19 +27,20 @@ func UpdateScore(c *gin.Context) {
 		return
 	}
 	log.Print("[DEBUG] update_score: ", &json)
+	code := service.UpdateScore(int64(json.ClientID), int32(json.Score))
 	c.JSON(http.StatusOK, gin.H{
-		"message": &json,
+		"code": code,
 		"success": "true",
 	})
 }
 
-func GetScore(c *gin.Context) {
+func GetTop10Score(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "pong",
 	})
 }
 
-type Score struct {
+type UpdateScoreReq struct {
 	ClientID int `json:"client_id"`
 	Score    int `json:"score"`
 }

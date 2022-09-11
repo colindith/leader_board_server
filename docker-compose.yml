@@ -11,6 +11,12 @@ services:
       - network1
     ports:
       - "3306:3306"
+    environment:
+      MYSQL_USER: test
+      MYSQL_PASSWORD: p@ss1234
+      MYSQL_DATABASE: test
+      ON_CREATE_DB: test
+
   leaderboard-redis:
     restart: always
     image: redis:7.0.4-alpine
@@ -23,7 +29,7 @@ services:
 
   leaderboard:
     restart: always
-    image: golang:1.19.1-alpine3.16
+    image: golang:1.19.1-buster
     build: ./server
     working_dir: /usr/src/app
     depends_on:
@@ -35,6 +41,8 @@ services:
       - ./server:/usr/src/app/
     ports:
       - "8080:8080"
+    env_file:
+      - .env
     entrypoint: ["/usr/src/app/dev-entrypoint.sh"]
 
 networks:
