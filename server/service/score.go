@@ -14,7 +14,8 @@ func UpdateScore(clientID string, score float64) (code int32) {
 		ClientID : clientID,
 		Score    : score,
 		Timestamp: ts,
-		Group    : getGroupFromTimestamp(ts),
+		Group    : getGroupFromTimestamp(ts),  // We use `Group` to distinguish
+		                                       // between each round (10 mins)
 	}
 	code = remote.GetScoreDB().UpdateScore(scoreObj)
 	if code != remote.CODE_SUCCESS && code != remote.DB_NOT_UPDATED {
@@ -22,6 +23,9 @@ func UpdateScore(clientID string, score float64) (code int32) {
 		return
 	}
 	if code == remote.DB_NOT_UPDATED {
+		// Since the score will only be updated if the new score is higher than
+		// previous one. Otherwise, the score will not be updated and fall into
+		// case.
 		return remote.CODE_SUCCESS
 	}
 
@@ -50,6 +54,7 @@ type UpdateScoreReq struct {
 }
 
 func GetTop10Score(resp *GetTop10ScoreResp) (errCode int32) {
+	// try to get the resp from cache
 	cachedResp, _ := getTop10ScoreCache()
 	if cachedResp != nil && isCurGroup(cachedResp.Group) {
 		log.Print("[DEBUG] fetch leaderboard from cache")
@@ -60,6 +65,7 @@ func GetTop10Score(resp *GetTop10ScoreResp) (errCode int32) {
 
 	curGroup := getGroupFromTimestamp(time.Now().Unix())
 
+	// get data from mysql database
 	code, rawScores := remote.GetScoreDB().GetTop10Score(curGroup)
 	log.Print("[DEBUG] top 10 scores code, result: ", code, rawScores)
 	if code != remote.CODE_SUCCESS && code != remote.DB_EMPTY_RESULT_ERROR {
