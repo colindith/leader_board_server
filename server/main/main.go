@@ -22,8 +22,8 @@ func main() {
 	}
 
 	r.GET("/api/ping", handler.Ping)
-	r.POST("/api/score", handler.UpdateScore)
-	r.GET("/api/top10_score", handler.GetTop10Score)
+	r.POST("/api/v1/score", handler.UpdateScore)
+	r.GET("/api/v1/leaderboard", handler.GetTop10Score)
 
 	err = r.Run() // listen and serve on 0.0.0.0:8080
 	if err != nil {

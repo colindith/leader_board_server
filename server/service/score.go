@@ -23,7 +23,6 @@ func UpdateScore(clientID string, score float64) (errorCode int32) {
 }
 
 type UpdateScoreReq struct {
-	ClientID string  `json:"client_id"`
 	Score    float64 `json:"score"`
 }
 
