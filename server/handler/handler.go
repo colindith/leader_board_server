@@ -19,7 +19,13 @@ func Ping(c *gin.Context) {
 
 func UpdateScore(c *gin.Context) {
 	clientID := c.GetHeader("ClientId")
-
+	if !validateClientID(clientID) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status": "not ok",
+			"message": "invalid client id",
+		})
+		return
+	}
 	json := service.UpdateScoreReq{}
 	err := c.BindJSON(&json)
 	if err != nil {
@@ -31,6 +37,13 @@ func UpdateScore(c *gin.Context) {
 		return
 	}
 	log.Print("[DEBUG] update_score: ", &json)
+	if !validateScore(json.Score) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status": "not ok",
+			"message": "invalid score",
+		})
+		return
+	}
 	code := service.UpdateScore(clientID, json.Score)
 	if code != remote.DB_SUCCESS {
 		c.JSON(http.StatusOK, gin.H{
@@ -57,4 +70,21 @@ func GetTop10Score(c *gin.Context) {
 		"status": "ok",
 		"topPlayers": resp,
 	})
+}
+
+func validateScore(score float64) bool {
+	if score < 0 {
+		return false
+	}
+	if score > 10000 {
+		return false
+	}
+	return true
+}
+
+func validateClientID(clientID string) bool {
+	if len(clientID) >= 32 {
+		return false
+	}
+	return true
 }
