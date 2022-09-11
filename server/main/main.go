@@ -11,6 +11,8 @@ import (
 
 func main() {
 	r := gin.Default()
+
+	// init db connection and migrate db
 	err := remote.InitDB()
 	if err != nil {
 		return
@@ -20,6 +22,10 @@ func main() {
 		log.Printf("[ERROR] gorm migrate error: %v", err)
 		return
 	}
+
+	// init redis connection
+	err, cancel := remote.InitRedis()
+	defer cancel()
 
 	r.GET("/api/ping", handler.Ping)
 	r.POST("/api/v1/score", handler.UpdateScore)

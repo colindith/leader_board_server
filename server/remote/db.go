@@ -10,9 +10,10 @@ import (
 )
 
 const (
-	DB_SUCCESS = 0
-	DB_ERROR = 1
+	CODE_SUCCESS          = 0
+	DB_ERROR              = 1
 	DB_EMPTY_RESULT_ERROR = 2
+	DB_NOT_UPDATED        = 3
 )
 
 var db *gorm.DB

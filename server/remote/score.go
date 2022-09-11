@@ -7,6 +7,11 @@ import (
 	"gorm.io/gorm/clause"
 )
 
+const (
+	ScoreLeaderBoardCacheKey     = "score_leader_board"
+	ScoreLeaderBoardCacheTimeout = 600 // seconds
+)
+
 type Score struct {
 	gorm.Model
 	ClientID  string  `json:"client_id" gorm:"type:varchar(32);unique_index:idx_client_id_group"`
@@ -43,7 +48,7 @@ func (s *ScoreDBImp) GetTop10Score(group int64) (int32, []*Score) {
 	if len(scores) == 0 {
 		return DB_EMPTY_RESULT_ERROR, nil
 	}
-	return DB_SUCCESS, scores
+	return CODE_SUCCESS, scores
 }
 
 func (s *ScoreDBImp) UpdateScore(score *Score) int32 {
@@ -57,18 +62,28 @@ func (s *ScoreDBImp) UpdateScore(score *Score) int32 {
 	if oldScore.ID == 0 {
 		// client_id not exist in DB, create new record for it
 		tx.Create(&score)
-	} else if score.Score > oldScore.Score {
+		if err := tx.Commit().Error; err != nil {
+			log.Printf("[ERROR] create new score error: %v", err)
+			return DB_ERROR
+		}
+		return CODE_SUCCESS
+	}
+	if score.Score > oldScore.Score {
 		// update the record
 		tx.
 			Model(&Score{}).
 			Where(&Score{ClientID: score.ClientID, Group: score.Group}).
 			Update("score", score.Score)
+		if err := tx.Commit().Error; err != nil {
+			log.Printf("[ERROR] update score error: %v, clientID: %v", err, score.ClientID)
+			return DB_ERROR
+		}
+		return CODE_SUCCESS
 	}
-	err := tx.Commit().Error
 
-	if err != nil {
-		log.Printf("[ERROR] update score error: %v", err)
+	if err := tx.Commit().Error; err != nil {
+		log.Printf("[ERROR] release lock error: %v", err)
 		return DB_ERROR
 	}
-	return DB_SUCCESS
+	return DB_NOT_UPDATED
 }

@@ -45,7 +45,7 @@ func UpdateScore(c *gin.Context) {
 		return
 	}
 	code := service.UpdateScore(clientID, json.Score)
-	if code != remote.DB_SUCCESS {
+	if code != remote.CODE_SUCCESS {
 		c.JSON(http.StatusOK, gin.H{
 			"status": "not ok",
 			"message": fmt.Sprintf("update database failed: %v", code),
