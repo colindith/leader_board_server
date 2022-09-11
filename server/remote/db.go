@@ -12,9 +12,10 @@ import (
 const (
 	DB_SUCCESS = 0
 	DB_ERROR = 1
+	DB_EMPTY_RESULT_ERROR = 2
 )
 
-var DB *gorm.DB
+var db *gorm.DB
 
 func InitDB() error {
 	//username := os.Getenv("MYSQL_USERNAME")
@@ -26,7 +27,7 @@ func InitDB() error {
 	dsn := fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?charset=utf8mb4&parseTime=True&loc=Local", "root", "123456789", host, port, dbName)
 	fmt.Println("dsn: ", dsn)
 	var err error
-	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Printf("[ERROR] init db error: %v", err.Error())
 	}
@@ -34,5 +35,5 @@ func InitDB() error {
 }
 
 func GetDB() *gorm.DB {
-	return DB
+	return db
 }

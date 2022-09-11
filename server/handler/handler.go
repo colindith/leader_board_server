@@ -16,7 +16,7 @@ func Ping(c *gin.Context) {
 }
 
 func UpdateScore(c *gin.Context) {
-	json := UpdateScoreReq{}
+	json := service.UpdateScoreReq{}
 	err := c.BindJSON(&json)
 	if err != nil {
 		log.Printf("[ERROR] error request payload %v", err.Error())
@@ -27,7 +27,7 @@ func UpdateScore(c *gin.Context) {
 		return
 	}
 	log.Print("[DEBUG] update_score: ", &json)
-	code := service.UpdateScore(int64(json.ClientID), int32(json.Score))
+	code := service.UpdateScore(json.ClientID, json.Score)
 	c.JSON(http.StatusOK, gin.H{
 		"code": code,
 		"success": "true",
@@ -35,12 +35,18 @@ func UpdateScore(c *gin.Context) {
 }
 
 func GetTop10Score(c *gin.Context) {
+	resp := &service.GetTop10ScoreResp{}
+	code := service.GetTop10Score(resp)
+	if code != 0 {
+		c.JSON(http.StatusOK, gin.H{
+			"code": code,
+			"success": "false",
+		})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{
-		"message": "pong",
+		"code": code,
+		"success": "true",
+		"score_list": resp,
 	})
-}
-
-type UpdateScoreReq struct {
-	ClientID int `json:"client_id"`
-	Score    int `json:"score"`
 }

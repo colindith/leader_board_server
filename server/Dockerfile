@@ -4,13 +4,14 @@ WORKDIR /usr/src/app
 #RUN apt update && \
 #    apt install vim gettext -y \
 #    unzip
-COPY . /usr/src/app/.
 #COPY ./go.* ./
 
 COPY go.mod .
 COPY go.sum .
 
 RUN go env -w GO111MODULE=off && go mod download
+
+COPY . /usr/src/app/.
 
 # Update the repository
 # "/usr/src/app/" is added in the directory to make sure that will always be in that location
