@@ -68,7 +68,7 @@ func GetTop10Score(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"status": "ok",
-		"topPlayers": resp,
+		"topPlayers": resp.ClientIDScoreList,
 	})
 }
 

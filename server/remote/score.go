@@ -15,8 +15,8 @@ const (
 type Score struct {
 	gorm.Model
 	ClientID  string  `json:"client_id" gorm:"type:varchar(32);unique_index:idx_client_id_group"`
-	Score     float64 `json:"score" gorm:"type:decimal(10,2);"`
-	Group     int64   `json:"group" gorm:"unique_index:idx_client_id_group"`
+	Score     float64 `json:"score" gorm:"type:decimal(10,2);index:idx_score_group,priority:2"`
+	Group     int64   `json:"group" gorm:"unique_index:idx_client_id_group;index:idx_score_group,priority:1"`
 	Timestamp int64   `json:"timestamp"`
 }
 
